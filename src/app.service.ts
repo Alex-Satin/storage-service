@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { drive_v3, google } from 'googleapis';
 import { Readable } from 'stream';
 import { GoogleDriveFolders } from './common/enums/google-drive-folders.enum';
+import { UpdateFileDto } from './common';
 
 @Injectable()
 export class AppService {
@@ -43,7 +44,7 @@ export class AppService {
     return res.data.id;
   }
 
-  async updateFile(file: Express.Multer.File, googleDriveId: string) {
+  async updateFile(file: Express.Multer.File, dto: UpdateFileDto) {
     const media = {
       mimeType: 'image/jpg',
       body: Readable.from(file.buffer),
@@ -51,7 +52,7 @@ export class AppService {
 
     const res = await this.driveService.files.update({
       media,
-      fileId: googleDriveId,
+      fileId: dto.googleDriveId,
       fields: 'id',
     });
 

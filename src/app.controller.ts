@@ -7,24 +7,20 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateFileDto, UpdateFileDto } from './common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('files')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('file'))
   createFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5242880 }),
-          new FileTypeValidator({ fileType: 'image/jpeg' }),
-        ],
-      }),
-    )
+    @UploadedFile()
     file: Express.Multer.File,
     @Body() dto: CreateFileDto,
   ) {
@@ -32,18 +28,12 @@ export class AppController {
   }
 
   @Patch()
+  @UseInterceptors(FileInterceptor('file'))
   updateFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5242880 }),
-          new FileTypeValidator({ fileType: 'image/jpeg' }),
-        ],
-      }),
-    )
+    @UploadedFile()
     file: Express.Multer.File,
     @Body() dto: UpdateFileDto,
   ) {
-    return this.appService.updateFile(file, dto.googleDriveId);
+    return this.appService.updateFile(file, dto);
   }
 }
